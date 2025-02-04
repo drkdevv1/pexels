@@ -1,35 +1,31 @@
-import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router-dom";
-import { RenderRoute, RenderRoutes } from "./functions/RenderRoutes";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { PrivateLayout } from "./layouts/private/PrivateLayout";
 import { ImageSearch } from "../pages/private/image-search/ImageSearch";
 import { Error404 } from "../pages/shared/errors/Error404";
 import { UserInformation } from "../pages/private/user-information/UserInformation";
 import { ChangePassword } from "../pages/private/change-password/ChangePassword";
+import { ProtectRoute } from "./functions/ProtectRoute";
 
-const privateRoutes: RenderRoute[] = [
+
+export const BuildPrivateRoutes = createBrowserRouter([
     {
-        path: "images",
-        allowedRoles: [1],
-        roleContent: { 1: <ImageSearch /> }
-    },
-    {
-        path: "profile",
-        allowedRoles: [1],
-        roleContent: { 1: <UserInformation /> }
-    },
-    {
-        path: "change-password",
-        allowedRoles: [1],
-        roleContent: { 1: <ChangePassword /> }
+        path: '/',
+        element: <PrivateLayout />,
+        children: [
+            { index: true, element: <Navigate to="/images" replace /> },
+            {
+                path: 'images',
+                element: <ProtectRoute allowedRoles={[1]} roleContent={{ 1: <ImageSearch /> }} />
+            },
+            {
+                path: 'profile',
+                element: <ProtectRoute allowedRoles={[1]} roleContent={{ 1: <UserInformation /> }} />
+            },
+            {
+                path: 'change-password',
+                element: <ProtectRoute allowedRoles={[1]} roleContent={{ 1: <ChangePassword /> }} />
+            },
+            { path: '*', element: <Error404 /> }
+        ]
     }
-];
-
-export const BuildPrivateRoutes = createBrowserRouter(
-    createRoutesFromElements(
-        <Route path="/" element={<PrivateLayout />}>
-            <Route index element={<Navigate to="/images" />} />
-            {RenderRoutes(privateRoutes)}
-            <Route path="*" element={<Error404 />} />
-        </Route>
-    )
-);
+]);
